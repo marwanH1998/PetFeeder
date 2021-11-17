@@ -1,4 +1,7 @@
 # PetFeeder
+## - Project Idea
+![alt text](https://raw.githubusercontent.com/marwanH1998/PetFeeder/main/WhatsApp%20Image%202021-11-17%20at%206.51.38%20PM.jpeg)
+
 ## - Hardware Requirements
 - STM32
 - ESP32
