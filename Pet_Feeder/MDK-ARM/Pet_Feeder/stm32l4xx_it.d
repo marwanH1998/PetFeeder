@@ -34,3 +34,4 @@ pet_feeder\stm32l4xx_it.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_tim
 pet_feeder\stm32l4xx_it.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h
 pet_feeder\stm32l4xx_it.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h
 pet_feeder\stm32l4xx_it.o: ../Core/Inc/stm32l4xx_it.h
+pet_feeder\stm32l4xx_it.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
