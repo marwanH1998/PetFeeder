@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
+#include "stdio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -41,6 +42,10 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+I2C_HandleTypeDef hi2c3;
+
+SPI_HandleTypeDef hspi1;
+
 TIM_HandleTypeDef htim1;
 
 UART_HandleTypeDef huart2;
@@ -59,6 +64,20 @@ const osThreadAttr_t US_Food_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
+/* Definitions for Weight_Food */
+osThreadId_t Weight_FoodHandle;
+const osThreadAttr_t Weight_Food_attributes = {
+  .name = "Weight_Food",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
+/* Definitions for Weight_Water */
+osThreadId_t Weight_WaterHandle;
+const osThreadAttr_t Weight_Water_attributes = {
+  .name = "Weight_Water",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -68,8 +87,12 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM1_Init(void);
+static void MX_I2C3_Init(void);
+static void MX_SPI1_Init(void);
 void StartDefaultTask(void *argument);
 void StartTask02(void *argument);
+void Measure_Weight_Food(void *argument);
+void Measure_Weight_Water(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -110,6 +133,8 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_TIM1_Init();
+  MX_I2C3_Init();
+  MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -139,6 +164,12 @@ int main(void)
 
   /* creation of US_Food */
   US_FoodHandle = osThreadNew(StartTask02, NULL, &US_Food_attributes);
+
+  /* creation of Weight_Food */
+  Weight_FoodHandle = osThreadNew(Measure_Weight_Food, NULL, &Weight_Food_attributes);
+
+  /* creation of Weight_Water */
+  Weight_WaterHandle = osThreadNew(Measure_Weight_Water, NULL, &Weight_Water_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -218,6 +249,92 @@ void SystemClock_Config(void)
   /** Enable MSI Auto calibration
   */
   HAL_RCCEx_EnableMSIPLLMode();
+}
+
+/**
+  * @brief I2C3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C3_Init(void)
+{
+
+  /* USER CODE BEGIN I2C3_Init 0 */
+
+  /* USER CODE END I2C3_Init 0 */
+
+  /* USER CODE BEGIN I2C3_Init 1 */
+
+  /* USER CODE END I2C3_Init 1 */
+  hi2c3.Instance = I2C3;
+  hi2c3.Init.Timing = 0x00000103;
+  hi2c3.Init.OwnAddress1 = 0;
+  hi2c3.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c3.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c3.Init.OwnAddress2 = 0;
+  hi2c3.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+  hi2c3.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c3.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Analogue filter
+  */
+  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c3, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Digital filter
+  */
+  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c3, 0) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C3_Init 2 */
+
+  /* USER CODE END I2C3_Init 2 */
+
+}
+
+/**
+  * @brief SPI1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_SPI1_Init(void)
+{
+
+  /* USER CODE BEGIN SPI1_Init 0 */
+
+  /* USER CODE END SPI1_Init 0 */
+
+  /* USER CODE BEGIN SPI1_Init 1 */
+
+  /* USER CODE END SPI1_Init 1 */
+  /* SPI1 parameter configuration*/
+  hspi1.Instance = SPI1;
+  hspi1.Init.Mode = SPI_MODE_MASTER;
+  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
+  hspi1.Init.DataSize = SPI_DATASIZE_12BIT;
+  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
+  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi1.Init.NSS = SPI_NSS_SOFT;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
+  hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
+  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+  hspi1.Init.CRCPolynomial = 7;
+  hspi1.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
+  hspi1.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
+  if (HAL_SPI_Init(&hspi1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN SPI1_Init 2 */
+
+  /* USER CODE END SPI1_Init 2 */
+
 }
 
 /**
@@ -358,17 +475,88 @@ static void MX_GPIO_Init(void)
 /* USER CODE END Header_StartDefaultTask */
 void StartDefaultTask(void *argument)
 {
+	 	char c[] = "Task 1\r\n";
+		HAL_UART_Transmit(&huart2,(uint8_t *)c,8,40);
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
-		//char c[] = "Task 1\r\n";
+ if (HAL_I2C_IsDeviceReady(&hi2c3, 0xD0, 40, HAL_MAX_DELAY) == HAL_OK)
+ {
+ for (int i = 1; i<=10;i++) // indicator of ready device
+ {
+ HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
+ HAL_Delay(250);
+ }
+ }
+ //Transmit via I2C to set clock to 7:15:35 am
+ uint8_t secbuffer[2], minbuffer[2], hourbuffer[2];
+ 
 
-	for(;;)
-	{
-		//HAL_UART_Transmit(&huart2,(uint8_t *)c,8,HAL_MAX_DELAY);
-    osDelay(100);
+ // seconds
+ secbuffer[0] = 0x00; //register address
+ secbuffer[1] = 0x00; //data to put in register --> 35 sec
+ HAL_I2C_Master_Transmit(&hi2c3, 0xD0, secbuffer, 2, 40);
+ 
+ // minutes
+ minbuffer[0] = 0x01; //register address
+ minbuffer[1] = 0x40; //data to put in register --> 15 min
+ HAL_I2C_Master_Transmit(&hi2c3, 0xD0, minbuffer, 2, 40);
+ // hours
+ hourbuffer[0] = 0x02; //register address
+ hourbuffer[1] = 0x4b; //data to put in register 01001001 --> 4b
+  HAL_I2C_Master_Transmit(&hi2c3, 0xD0, hourbuffer, 2, 40);
 
-		
-	}
+ 
+ //Alarm2
+ uint8_t Aminbuffer[2], Ahourbuffer[2], CtrlR[2], StatR[2];
+
+
+ // minutes
+ Aminbuffer[0] = 0x0b; //register address
+ Aminbuffer[1] = 0x41; //data to put in register --> 41 min
+ HAL_I2C_Master_Transmit(&hi2c3, 0xD0, Aminbuffer, 2, 40);
+ // hours
+ Ahourbuffer[0] = 0x0c; //register address
+ Ahourbuffer[1] = 0x4b; //data to put in register 01001001 --> 4b
+ HAL_I2C_Master_Transmit(&hi2c3, 0xD0, Ahourbuffer, 2, 40);
+
+
+ CtrlR[0] = 0x0e; //register address
+ CtrlR[1] = 0x1e; //register address
+ HAL_I2C_Master_Transmit(&hi2c3, 0xD0, CtrlR, 2, 40);
+ 
+ StatR[0] = 0x0f; //register address
+ StatR[1] = 0x80; //register address
+ HAL_I2C_Master_Transmit(&hi2c3, 0xD0, StatR, 2, 40);
+
+ 
+ 
+ 
+ 
+ //Receive via I2C and forward to UART
+ uint8_t h1,h2,m1,m2,s1,s2;
+ char uartBuf [100] = {0};
+		for(;;)
+ {
+ //send seconds register address 00h to read from
+ HAL_I2C_Master_Transmit(&hi2c3, 0xD0, secbuffer, 1, 40);
+ //read data of register 00h to secbuffer[1]
+ HAL_I2C_Master_Receive(&hi2c3, 0xD1, secbuffer+1, 1, 40);
+ //prepare UART output
+ s1 = secbuffer[1] >> 4;
+ s2 = secbuffer[1] & 0x0F;
+ HAL_I2C_Master_Transmit(&hi2c3, 0xD0, minbuffer, 1, 40);
+ HAL_I2C_Master_Receive(&hi2c3, 0xD1, minbuffer+1, 1, 40);
+ m1 = minbuffer[1] >> 4;
+ m2 = minbuffer[1] & 0x0F;
+ HAL_I2C_Master_Transmit(&hi2c3, 0xD0, hourbuffer, 1, 40);
+ HAL_I2C_Master_Receive(&hi2c3, 0xD1, hourbuffer+1, 1, 40);
+ h1 = (hourbuffer[1] >> 4) & 1;
+ h2 = hourbuffer[1] & 0x0F;
+ // transmit time to UART
+ sprintf(uartBuf, "%d%d:%d%d:%d%d\r\n",h1,h2,m1,m2,s1,s2);
+ HAL_UART_Transmit(&huart2, (uint8_t *)uartBuf, sizeof(uartBuf), 40);
+ HAL_Delay(1000);
+ }
   /* USER CODE END 5 */
 }
 
@@ -379,7 +567,7 @@ void StartDefaultTask(void *argument)
 * @retval None
 */
 /* USER CODE END Header_StartTask02 */
-int foodOrWater = 0; 
+int foodOrWater= 0;
 void StartTask02(void *argument)
 {
   /* USER CODE BEGIN StartTask02 */
@@ -423,6 +611,42 @@ else
 	 
   }
   /* USER CODE END StartTask02 */
+}
+
+/* USER CODE BEGIN Header_Measure_Weight_Food */
+/**
+* @brief Function implementing the Weight_Food thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_Measure_Weight_Food */
+void Measure_Weight_Food(void *argument)
+{
+  /* USER CODE BEGIN Measure_Weight_Food */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END Measure_Weight_Food */
+}
+
+/* USER CODE BEGIN Header_Measure_Weight_Water */
+/**
+* @brief Function implementing the Weight_Water thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_Measure_Weight_Water */
+void Measure_Weight_Water(void *argument)
+{
+  /* USER CODE BEGIN Measure_Weight_Water */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END Measure_Weight_Water */
 }
 
 /**

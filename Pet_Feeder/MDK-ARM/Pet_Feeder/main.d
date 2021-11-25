@@ -29,6 +29,8 @@ pet_feeder\main.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_i2c.h
 pet_feeder\main.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_i2c_ex.h
 pet_feeder\main.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pwr.h
 pet_feeder\main.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pwr_ex.h
+pet_feeder\main.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_spi.h
+pet_feeder\main.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_spi_ex.h
 pet_feeder\main.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_tim.h
 pet_feeder\main.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_tim_ex.h
 pet_feeder\main.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h
@@ -44,3 +46,4 @@ pet_feeder\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappe
 pet_feeder\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
 pet_feeder\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
 pet_feeder\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h
+pet_feeder\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
