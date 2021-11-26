@@ -15,6 +15,8 @@ Water will be refilled when empty and food will be dispensed at set times of the
 - Ultrasonic Sensor
 - Water Valve Control
 - Real Time Clock Module
+- HX711 ADC
+- 12V Relay
 
 ## - Software Requirements
 
@@ -24,5 +26,8 @@ Water will be refilled when empty and food will be dispensed at set times of the
 - Arduino IDE
 - Telegram
 
-## - System Design
+## - System Design 1
+![alt text](https://raw.githubusercontent.com/marwanH1998/PetFeeder/main/pictures/Untitled%20Diagram.jpg)
+
+## - System Design 2
 ![alt text](https://raw.githubusercontent.com/marwanH1998/PetFeeder/main/pictures/Untitled%20Diagram.jpg)
