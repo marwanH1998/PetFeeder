@@ -30,4 +30,11 @@ Water will be refilled when empty and food will be dispensed at set times of the
 ![alt text](https://raw.githubusercontent.com/marwanH1998/PetFeeder/main/pictures/Untitled%20Diagram.jpg)
 
 ## - System Design 2
-![alt text](https://raw.githubusercontent.com/marwanH1998/PetFeeder/main/pictures/Untitled%20Diagram.jpg)
+![alt text](https://raw.githubusercontent.com/marwanH1998/PetFeeder/main/pictures/Embedded.drawio.png)
+
+## - Connections 1
+![alt text](https://raw.githubusercontent.com/marwanH1998/PetFeeder/main/pictures/connection_1.jpeg)
+
+## - Demo 
+[Demo 1]: <https://drive.google.com/file/d/1ngfxHc1YyZAuZVRz9Wq4pAjel6HeNgwg/view?usp=sharing>
+
