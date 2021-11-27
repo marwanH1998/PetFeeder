@@ -28,8 +28,6 @@ pet_feeder\stm32l4xx_hal_i2c.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_ha
 pet_feeder\stm32l4xx_hal_i2c.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_i2c_ex.h
 pet_feeder\stm32l4xx_hal_i2c.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pwr.h
 pet_feeder\stm32l4xx_hal_i2c.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pwr_ex.h
-pet_feeder\stm32l4xx_hal_i2c.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_spi.h
-pet_feeder\stm32l4xx_hal_i2c.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_spi_ex.h
 pet_feeder\stm32l4xx_hal_i2c.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_tim.h
 pet_feeder\stm32l4xx_hal_i2c.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_tim_ex.h
 pet_feeder\stm32l4xx_hal_i2c.o: ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h
