@@ -21,7 +21,6 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "stdio.h"
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -47,6 +46,7 @@ I2C_HandleTypeDef hi2c3;
 SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim1;
+TIM_HandleTypeDef htim2;
 
 UART_HandleTypeDef huart2;
 
@@ -78,6 +78,27 @@ const osThreadAttr_t Weight_Water_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
+/* Definitions for WaterValve */
+osThreadId_t WaterValveHandle;
+const osThreadAttr_t WaterValve_attributes = {
+  .name = "WaterValve",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
+/* Definitions for FoodMotor */
+osThreadId_t FoodMotorHandle;
+const osThreadAttr_t FoodMotor_attributes = {
+  .name = "FoodMotor",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
+/* Definitions for Temp */
+osThreadId_t TempHandle;
+const osThreadAttr_t Temp_attributes = {
+  .name = "Temp",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -89,10 +110,14 @@ static void MX_USART2_UART_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_I2C3_Init(void);
 static void MX_SPI1_Init(void);
+static void MX_TIM2_Init(void);
 void StartDefaultTask(void *argument);
 void StartTask02(void *argument);
 void Measure_Weight_Food(void *argument);
 void Measure_Weight_Water(void *argument);
+void Start_Water_Control(void *argument);
+void Food_Motor_Control(void *argument);
+void StartTemp(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -135,6 +160,7 @@ int main(void)
   MX_TIM1_Init();
   MX_I2C3_Init();
   MX_SPI1_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -170,6 +196,15 @@ int main(void)
 
   /* creation of Weight_Water */
   Weight_WaterHandle = osThreadNew(Measure_Weight_Water, NULL, &Weight_Water_attributes);
+
+  /* creation of WaterValve */
+  WaterValveHandle = osThreadNew(Start_Water_Control, NULL, &WaterValve_attributes);
+
+  /* creation of FoodMotor */
+  FoodMotorHandle = osThreadNew(Food_Motor_Control, NULL, &FoodMotor_attributes);
+
+  /* creation of Temp */
+  TempHandle = osThreadNew(StartTemp, NULL, &Temp_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -402,6 +437,65 @@ static void MX_TIM1_Init(void)
 }
 
 /**
+  * @brief TIM2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM2_Init(void)
+{
+
+  /* USER CODE BEGIN TIM2_Init 0 */
+
+  /* USER CODE END TIM2_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_OC_InitTypeDef sConfigOC = {0};
+
+  /* USER CODE BEGIN TIM2_Init 1 */
+
+  /* USER CODE END TIM2_Init 1 */
+  htim2.Instance = TIM2;
+  htim2.Init.Prescaler = 0;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 10;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_PWM_Init(&htim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM2_Init 2 */
+
+  /* USER CODE END TIM2_Init 2 */
+  HAL_TIM_MspPostInit(&htim2);
+
+}
+
+/**
   * @brief USART2 Initialization Function
   * @param None
   * @retval None
@@ -475,8 +569,6 @@ static void MX_GPIO_Init(void)
 /* USER CODE END Header_StartDefaultTask */
 void StartDefaultTask(void *argument)
 {
-	 	char c[] = "Task 1\r\n";
-		HAL_UART_Transmit(&huart2,(uint8_t *)c,8,40);
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
  if (HAL_I2C_IsDeviceReady(&hi2c3, 0xD0, 40, HAL_MAX_DELAY) == HAL_OK)
@@ -647,6 +739,83 @@ void Measure_Weight_Water(void *argument)
     osDelay(1);
   }
   /* USER CODE END Measure_Weight_Water */
+}
+
+/* USER CODE BEGIN Header_Start_Water_Control */
+/**
+* @brief Function implementing the WaterValve thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_Start_Water_Control */
+void Start_Water_Control(void *argument)
+{
+  /* USER CODE BEGIN Start_Water_Control */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END Start_Water_Control */
+}
+
+/* USER CODE BEGIN Header_Food_Motor_Control */
+/**
+* @brief Function implementing the FoodMotor thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_Food_Motor_Control */
+void Food_Motor_Control(void *argument)
+{
+  /* USER CODE BEGIN Food_Motor_Control */
+  /* Infinite loop */
+		int pre = 0;
+		HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
+	__HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_1,5);
+  for(;;)
+  {
+		char c[] ="MOTOR open";
+		char c1[] ="MOTOR close";
+
+
+
+			pre = 5;
+				HAL_UART_Transmit(&huart2, (uint8_t *)c, 5, HAL_MAX_DELAY);
+
+			__HAL_TIM_SET_PRESCALER(&htim2,pre);
+			HAL_Delay(2000);
+			pre = 800;
+				HAL_UART_Transmit(&huart2, (uint8_t *)c1, 5, HAL_MAX_DELAY);
+
+			__HAL_TIM_SET_PRESCALER(&htim2,pre);
+			HAL_Delay(2000);
+		
+	
+		
+			HAL_Delay(1000);
+
+    osDelay(1);
+  }
+  /* USER CODE END Food_Motor_Control */
+}
+
+/* USER CODE BEGIN Header_StartTemp */
+/**
+* @brief Function implementing the Temp thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartTemp */
+void StartTemp(void *argument)
+{
+  /* USER CODE BEGIN StartTemp */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartTemp */
 }
 
 /**

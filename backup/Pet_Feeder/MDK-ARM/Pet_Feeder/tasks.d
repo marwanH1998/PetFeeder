@@ -1,0 +1,16 @@
+pet_feeder\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/tasks.c
+pet_feeder\tasks.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+pet_feeder\tasks.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+pet_feeder\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+pet_feeder\tasks.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+pet_feeder\tasks.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+pet_feeder\tasks.o: ../Core/Inc/FreeRTOSConfig.h
+pet_feeder\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+pet_feeder\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+pet_feeder\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+pet_feeder\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
+pet_feeder\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+pet_feeder\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+pet_feeder\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
+pet_feeder\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h
+pet_feeder\tasks.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/stack_macros.h
