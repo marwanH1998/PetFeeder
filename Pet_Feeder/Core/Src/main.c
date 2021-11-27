@@ -784,16 +784,16 @@ void Food_Motor_Control(void *argument)
 				HAL_UART_Transmit(&huart2, (uint8_t *)c, 5, HAL_MAX_DELAY);
 
 			__HAL_TIM_SET_PRESCALER(&htim2,pre);
-			HAL_Delay(2000);
+			HAL_Delay(1000);
 			pre = 800;
 				HAL_UART_Transmit(&huart2, (uint8_t *)c1, 5, HAL_MAX_DELAY);
 
 			__HAL_TIM_SET_PRESCALER(&htim2,pre);
-			HAL_Delay(2000);
+			HAL_Delay(1000);
 		
 	
 		
-			HAL_Delay(1000);
+			HAL_Delay(500);
 
     osDelay(1);
   }
