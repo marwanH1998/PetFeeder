@@ -10,7 +10,7 @@ Water will be refilled when empty and food will be dispensed at set times of the
 - ESP32
 - Jumper Wires
 - 6V Battery
-- DC Motor
+- Servo Motor
 - Weight Sensor
 - Ultrasonic Sensor
 - Water Valve Control
