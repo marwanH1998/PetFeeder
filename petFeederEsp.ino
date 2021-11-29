@@ -45,38 +45,6 @@ void handleNewMessages(int numNewMessages) {
     // Print the received message
     String text = bot.messages[i].text;
     Serial.println(text);
-
-    String from_name = bot.messages[i].from_name;
-
-    if (text == "/start") {
-      String welcome = "Welcome, " + from_name + ".\n";
-      welcome += "Use the following commands to control your outputs.\n\n";
-      welcome += "/led_on to turn GPIO ON \n";
-      welcome += "/led_off to turn GPIO OFF \n";
-      welcome += "/state to request current GPIO state \n";
-      bot.sendMessage(chat_id, welcome, "");
-    }
-
-    if (text == "/led_on") {
-      bot.sendMessage(chat_id, "LED state set to ON", "");
-      ledState = HIGH;
-      digitalWrite(ledPin, ledState);
-    }
-    
-    if (text == "/led_off") {
-      bot.sendMessage(chat_id, "LED state set to OFF", "");
-      ledState = LOW;
-      digitalWrite(ledPin, ledState);
-    }
-    
-    if (text == "/state") {
-      if (digitalRead(ledPin)){
-        bot.sendMessage(chat_id, "LED is ON", "");
-      }
-      else{
-        bot.sendMessage(chat_id, "LED is OFF", "");
-      }
-    }
   }
 }
 void setup()   // put your setup code here, to run once:
@@ -118,25 +86,25 @@ void loop()
     {
       Serial.print("food\n");   //print the final result of the water depth
       String welcome = "PLEASE REFILL FOOD PLEASEE\n\n";
-      bot.sendMessage(CHAT_ID, welcome, "");
+      //bot.sendMessage(CHAT_ID, welcome, "");
     }
     else
     {
       Serial.print("water\n");   //print the final result of the water depth
       String welcome = "PLEASE REFILL WATER PLEASEE\n\n"; 
-      bot.sendMessage(CHAT_ID, welcome, "");
+      //bot.sendMessage(CHAT_ID, welcome, "");
     }
   }
 //
-//    if (millis() > lastTimeBotRan + botRequestDelay)  {
-//    int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
-//
-//    while(numNewMessages) {
-//      Serial.println("got response");
-//      handleNewMessages(numNewMessages);
-//      numNewMessages = bot.getUpdates(bot.last_message_received + 1);
-//    }
-//    lastTimeBotRan = millis();
-  //}
+    if (millis() > lastTimeBotRan + botRequestDelay)  {
+    int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
+
+    while(numNewMessages) {
+      Serial.println("got response");
+      handleNewMessages(numNewMessages);
+      numNewMessages = bot.getUpdates(bot.last_message_received + 1);
+    }
+    lastTimeBotRan = millis();
+  }
 
 }
