@@ -62,7 +62,6 @@ extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim16;
 extern int foodOrWater;
 extern UART_HandleTypeDef huart2;
-
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -211,8 +210,8 @@ void TIM1_CC_IRQHandler(void)
 			}
 		 if((foodOrWater ==1) && (flagCH2 ==0))
 			{
-			start1 = HAL_TIM_ReadCapturedValue(&htim1, TIM_CHANNEL_2);  // capturing start
-			__HAL_TIM_SET_CAPTUREPOLARITY(&htim1, TIM_CHANNEL_2, TIM_INPUTCHANNELPOLARITY_FALLING);
+			start1 = HAL_TIM_ReadCapturedValue(&htim1, TIM_CHANNEL_3);  // capturing start
+			__HAL_TIM_SET_CAPTUREPOLARITY(&htim1, TIM_CHANNEL_3, TIM_INPUTCHANNELPOLARITY_FALLING);
 								flagCH2 =1;
 
 			}
@@ -232,9 +231,9 @@ void TIM1_CC_IRQHandler(void)
 		}
 		 
 		if((foodOrWater ==1) && (flagCH2 ==1)) {
-				end1 = HAL_TIM_ReadCapturedValue(&htim1, TIM_CHANNEL_2);  // capturing end
+				end1 = HAL_TIM_ReadCapturedValue(&htim1, TIM_CHANNEL_3);  // capturing end
 
-				__HAL_TIM_SET_CAPTUREPOLARITY(&htim1, TIM_CHANNEL_2, TIM_INPUTCHANNELPOLARITY_RISING);
+				__HAL_TIM_SET_CAPTUREPOLARITY(&htim1, TIM_CHANNEL_3, TIM_INPUTCHANNELPOLARITY_RISING);
 
 				sprintf((char*)msg1,"%f",((end1-start1) * 0.343/2));
 

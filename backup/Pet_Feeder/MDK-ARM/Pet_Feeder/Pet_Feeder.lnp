@@ -20,8 +20,6 @@
 "pet_feeder\stm32l4xx_hal_pwr_ex.o"
 "pet_feeder\stm32l4xx_hal_cortex.o"
 "pet_feeder\stm32l4xx_hal_exti.o"
-"pet_feeder\stm32l4xx_hal_spi.o"
-"pet_feeder\stm32l4xx_hal_spi_ex.o"
 "pet_feeder\stm32l4xx_hal_tim.o"
 "pet_feeder\stm32l4xx_hal_tim_ex.o"
 "pet_feeder\stm32l4xx_hal_uart.o"
