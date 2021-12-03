@@ -62,6 +62,7 @@ extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim16;
 extern int foodOrWater;
 extern UART_HandleTypeDef huart2;
+
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */

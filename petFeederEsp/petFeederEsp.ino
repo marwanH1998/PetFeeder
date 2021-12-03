@@ -86,13 +86,13 @@ void loop()
     {
       Serial.print("food\n");   //print the final result of the water depth
       String welcome = "PLEASE REFILL FOOD PLEASEE\n\n";
-      //bot.sendMessage(CHAT_ID, welcome, "");
+      bot.sendMessage(CHAT_ID, welcome, "");
     }
     else
     {
       Serial.print("water\n");   //print the final result of the water depth
       String welcome = "PLEASE REFILL WATER PLEASEE\n\n"; 
-      //bot.sendMessage(CHAT_ID, welcome, "");
+      bot.sendMessage(CHAT_ID, welcome, "");
     }
   }
 //
