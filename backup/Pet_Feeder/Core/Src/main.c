@@ -22,6 +22,7 @@
 #include "cmsis_os.h"
 #include "stdio.h"
 
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -47,6 +48,7 @@ I2C_HandleTypeDef hi2c3;
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 
+UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 
 /* Definitions for US_Water */
@@ -109,6 +111,7 @@ static void MX_USART2_UART_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_I2C3_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_USART1_UART_Init(void);
 void StartDefaultTask(void *argument);
 void StartTask02(void *argument);
 void Measure_Weight_Food(void *argument);
@@ -158,6 +161,7 @@ int main(void)
   MX_TIM1_Init();
   MX_I2C3_Init();
   MX_TIM2_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -383,7 +387,7 @@ static void MX_TIM1_Init(void)
   {
     Error_Handler();
   }
-  if (HAL_TIM_IC_ConfigChannel(&htim1, &sConfigIC, TIM_CHANNEL_2) != HAL_OK)
+  if (HAL_TIM_IC_ConfigChannel(&htim1, &sConfigIC, TIM_CHANNEL_3) != HAL_OK)
   {
     Error_Handler();
   }
@@ -453,6 +457,41 @@ static void MX_TIM2_Init(void)
 }
 
 /**
+  * @brief USART1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART1_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART1_Init 0 */
+
+  /* USER CODE END USART1_Init 0 */
+
+  /* USER CODE BEGIN USART1_Init 1 */
+
+  /* USER CODE END USART1_Init 1 */
+  huart1.Instance = USART1;
+  huart1.Init.BaudRate = 9600;
+  huart1.Init.WordLength = UART_WORDLENGTH_8B;
+  huart1.Init.StopBits = UART_STOPBITS_1;
+  huart1.Init.Parity = UART_PARITY_NONE;
+  huart1.Init.Mode = UART_MODE_TX_RX;
+  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART1_Init 2 */
+
+  /* USER CODE END USART1_Init 2 */
+
+}
+
+/**
   * @brief USART2 Initialization Function
   * @param None
   * @retval None
@@ -502,10 +541,32 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3|GPIO_PIN_6, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : PB3 PB6 */
-  GPIO_InitStruct.Pin = GPIO_PIN_3|GPIO_PIN_6;
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1|GPIO_PIN_3|GPIO_PIN_6, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : PA4 */
+  GPIO_InitStruct.Pin = GPIO_PIN_4;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PA5 */
+  GPIO_InitStruct.Pin = GPIO_PIN_5;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PB0 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PB1 PB3 PB6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_3|GPIO_PIN_6;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -616,7 +677,8 @@ void StartDefaultTask(void *argument)
 * @retval None
 */
 /* USER CODE END Header_StartTask02 */
-int foodOrWater = 0;
+int foodOrWater=0;
+int flagforfood =0;
 void StartTask02(void *argument)
 {
   /* USER CODE BEGIN StartTask02 */
@@ -630,34 +692,40 @@ void StartTask02(void *argument)
 		//Ch2 Water
 if (foodOrWater ==0)
 {	
-    osDelay(100);
+    osDelay(1000);
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
     __HAL_TIM_SetCounter(&htim1,0);
 	  while(__HAL_TIM_GetCounter (&htim1)<10);	
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
-		//HAL_TIM_IC_Start_IT(&htim1,TIM_CHANNEL_2);
 		HAL_TIM_IC_Start_IT(&htim1,TIM_CHANNEL_1);
-	  HAL_Delay(500);
+    osDelay(1000);
 	
 	foodOrWater =1;
 }
 else
 {	
-    osDelay(100);
+    osDelay(1000);
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
     __HAL_TIM_SetCounter(&htim1,0);
 	  while(__HAL_TIM_GetCounter (&htim1)<10);	
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
-		//HAL_TIM_IC_Start_IT(&htim1,TIM_CHANNEL_2);
-		HAL_TIM_IC_Start_IT(&htim1,TIM_CHANNEL_2);
-	  HAL_Delay(500);
+		HAL_TIM_IC_Start_IT(&htim1,TIM_CHANNEL_3);
+    osDelay(1000);
 
 	foodOrWater =0;
 }
 
-   //while(TIM1->CNT < 10)
-	 //{}
-	 
+		if(flagforfood==1)
+			flagforfood=0;
+		else
+			flagforfood=1;
+		
+		
+		uint8_t out;
+		sprintf((char *) &out,"%d",flagforfood);
+		HAL_UART_Transmit(&huart1, &out,sizeof(out),HAL_MAX_DELAY);
+
+    /* USER CODE BEGIN 3 */	 
   }
   /* USER CODE END StartTask02 */
 }
@@ -711,8 +779,6 @@ void Start_Water_Control(void *argument)
   /* Infinite loop */
   for(;;)
   {
-		char c[] ="WATER open";
-		HAL_UART_Transmit(&huart2, (uint8_t *)c, 10, HAL_MAX_DELAY);
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_SET);
 		HAL_Delay(1000);
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_RESET);
@@ -739,18 +805,14 @@ void Food_Motor_Control(void *argument)
 	__HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_1,5);
   for(;;)
   {
-		char c[] ="MOTOR open";
-		char c1[] ="MOTOR close";
 
 
 
 			pre = 5;
-				HAL_UART_Transmit(&huart2, (uint8_t *)c, 5, HAL_MAX_DELAY);
 
 			__HAL_TIM_SET_PRESCALER(&htim2,pre);
 			HAL_Delay(1000);
 			pre = 800;
-				HAL_UART_Transmit(&huart2, (uint8_t *)c1, 5, HAL_MAX_DELAY);
 
 			__HAL_TIM_SET_PRESCALER(&htim2,pre);
 			HAL_Delay(1000);
