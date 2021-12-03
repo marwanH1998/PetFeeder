@@ -21,7 +21,7 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "stdio.h"
-
+#include "hx711.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -119,7 +119,10 @@ void Measure_Weight_Water(void *argument);
 void Start_Water_Control(void *argument);
 void Food_Motor_Control(void *argument);
 void StartTemp(void *argument);
-
+hx711_t loadcellFood;
+int Foodweight;
+hx711_t loadcellWater;
+int waterWeight;
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -664,7 +667,7 @@ void StartDefaultTask(void *argument)
  h2 = hourbuffer[1] & 0x0F;
  // transmit time to UART
  sprintf(uartBuf, "%d%d:%d%d:%d%d\r\n",h1,h2,m1,m2,s1,s2);
- HAL_UART_Transmit(&huart2, (uint8_t *)uartBuf, sizeof(uartBuf), 40);
+ //HAL_UART_Transmit(&huart2, (uint8_t *)uartBuf, sizeof(uartBuf), 40);
  osDelay(1000);
  }
   /* USER CODE END 5 */
@@ -697,7 +700,7 @@ if (foodOrWater ==0)
     __HAL_TIM_SetCounter(&htim1,0);
 	  while(__HAL_TIM_GetCounter (&htim1)<10);	
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
-		HAL_TIM_IC_Start_IT(&htim1,TIM_CHANNEL_1);
+		//HAL_TIM_IC_Start_IT(&htim1,TIM_CHANNEL_1);
     osDelay(1000);
 	
 	foodOrWater =1;
@@ -709,7 +712,7 @@ else
     __HAL_TIM_SetCounter(&htim1,0);
 	  while(__HAL_TIM_GetCounter (&htim1)<10);	
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
-		HAL_TIM_IC_Start_IT(&htim1,TIM_CHANNEL_3);
+		//HAL_TIM_IC_Start_IT(&htim1,TIM_CHANNEL_3);
     osDelay(1000);
 
 	foodOrWater =0;
@@ -737,13 +740,33 @@ else
 * @retval None
 */
 /* USER CODE END Header_Measure_Weight_Food */
+
 void Measure_Weight_Food(void *argument)
 {
   /* USER CODE BEGIN Measure_Weight_Food */
   /* Infinite loop */
-  for(;;)
+	 hx711_init(&loadcellFood, GPIOA, GPIO_PIN_4, GPIOA, GPIO_PIN_5);
+				hx711_tare(&loadcellFood, 10);
+
+		hx711_coef_set(&loadcellFood, 146.5); // read afer calibration
+
+	char out[5];
+	char food[13]="Food Weight: ";
+	char newline[2] = "\r\n";
+  while(1)
   {
-    osDelay(1);
+		    osDelay(5000);
+		taskENTER_CRITICAL();
+    osDelay(500);
+		Foodweight = hx711_weight(&loadcellFood, 10);
+		Foodweight=Foodweight;
+		sprintf(out,"%d",Foodweight);
+		HAL_UART_Transmit(&huart2,(uint8_t *)food,sizeof(food),HAL_MAX_DELAY);
+		HAL_UART_Transmit(&huart2,(uint8_t *)out,sizeof(out),HAL_MAX_DELAY);
+		HAL_UART_Transmit(&huart2,(uint8_t *)newline,sizeof(newline),HAL_MAX_DELAY);
+		taskEXIT_CRITICAL();
+
+
   }
   /* USER CODE END Measure_Weight_Food */
 }
@@ -761,7 +784,30 @@ void Measure_Weight_Water(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    hx711_init(&loadcellWater, GPIOB, GPIO_PIN_0, GPIOB, GPIO_PIN_1);
+				hx711_tare(&loadcellWater, 10);
+
+		hx711_coef_set(&loadcellWater, 146.5); // read afer calibration
+
+	char waterout[5];
+	char newline[2] = "\r\n";
+	char water[14]="Water Weight: ";
+
+  while(1)
+  {
+		    osDelay(5000);
+		taskENTER_CRITICAL();
+    osDelay(500);
+		waterWeight = hx711_weight(&loadcellWater, 10);
+		waterWeight=waterWeight;
+		sprintf(waterout,"%d",waterWeight);
+		HAL_UART_Transmit(&huart2,(uint8_t *)water,sizeof(water),HAL_MAX_DELAY);
+		HAL_UART_Transmit(&huart2,(uint8_t *)waterout,sizeof(waterout),HAL_MAX_DELAY);
+		HAL_UART_Transmit(&huart2,(uint8_t *)newline,sizeof(newline),HAL_MAX_DELAY);
+		taskEXIT_CRITICAL();
+
+
+  }
   }
   /* USER CODE END Measure_Weight_Water */
 }

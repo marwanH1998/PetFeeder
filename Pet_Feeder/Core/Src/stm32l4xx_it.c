@@ -22,7 +22,6 @@
 #include "main.h"
 #include "stm32l4xx_it.h"
 #include "stdio.h"
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -225,9 +224,9 @@ void TIM1_CC_IRQHandler(void)
 				end = HAL_TIM_ReadCapturedValue(&htim1, TIM_CHANNEL_1);  // capturing end
 				__HAL_TIM_SET_CAPTUREPOLARITY(&htim1, TIM_CHANNEL_1, TIM_INPUTCHANNELPOLARITY_RISING);
 							sprintf((char*)msg,"%f",((end-start) * 0.343/2));
-				HAL_UART_Transmit(&huart2,(uint8_t *)water,7,HAL_MAX_DELAY);
-				HAL_UART_Transmit(&huart2,msg,9,HAL_MAX_DELAY);
-				HAL_UART_Transmit(&huart2,(uint8_t *)newline,2,HAL_MAX_DELAY);
+				//HAL_UART_Transmit(&huart2,(uint8_t *)water,7,HAL_MAX_DELAY);
+				//HAL_UART_Transmit(&huart2,msg,9,HAL_MAX_DELAY);
+				//HAL_UART_Transmit(&huart2,(uint8_t *)newline,2,HAL_MAX_DELAY);
 				flagCH1 =0;
 		}
 		 
@@ -238,9 +237,9 @@ void TIM1_CC_IRQHandler(void)
 
 				sprintf((char*)msg1,"%f",((end1-start1) * 0.343/2));
 
-				HAL_UART_Transmit(&huart2,(uint8_t *)food,6,HAL_MAX_DELAY);
-				HAL_UART_Transmit(&huart2,msg1,9,HAL_MAX_DELAY);
-				HAL_UART_Transmit(&huart2,(uint8_t *)newline,2,HAL_MAX_DELAY);
+				//HAL_UART_Transmit(&huart2,(uint8_t *)food,6,HAL_MAX_DELAY);
+				//HAL_UART_Transmit(&huart2,msg1,9,HAL_MAX_DELAY);
+				//HAL_UART_Transmit(&huart2,(uint8_t *)newline,2,HAL_MAX_DELAY);
 			flagCH2 =0;
 		}
 	}

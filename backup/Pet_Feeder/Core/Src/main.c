@@ -594,7 +594,7 @@ void StartDefaultTask(void *argument)
  for (int i = 1; i<=10;i++) // indicator of ready device
  {
  HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
- HAL_Delay(250);
+ osDelay(250);
  }
  }
  //Transmit via I2C to set clock to 7:15:35 am
@@ -665,7 +665,7 @@ void StartDefaultTask(void *argument)
  // transmit time to UART
  sprintf(uartBuf, "%d%d:%d%d:%d%d\r\n",h1,h2,m1,m2,s1,s2);
  HAL_UART_Transmit(&huart2, (uint8_t *)uartBuf, sizeof(uartBuf), 40);
- HAL_Delay(1000);
+ osDelay(1000);
  }
   /* USER CODE END 5 */
 }
@@ -780,11 +780,9 @@ void Start_Water_Control(void *argument)
   for(;;)
   {
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_SET);
-		HAL_Delay(1000);
+		osDelay(1000);
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_RESET);
-		HAL_Delay(1000);
-
-    osDelay(1);
+		osDelay(1000);
   }
   /* USER CODE END Start_Water_Control */
 }
@@ -811,17 +809,16 @@ void Food_Motor_Control(void *argument)
 			pre = 5;
 
 			__HAL_TIM_SET_PRESCALER(&htim2,pre);
-			HAL_Delay(1000);
+			osDelay(1000);
 			pre = 800;
 
 			__HAL_TIM_SET_PRESCALER(&htim2,pre);
-			HAL_Delay(1000);
+			osDelay(1000);
 		
 	
 		
-			HAL_Delay(500);
+			osDelay(500);
 
-    osDelay(1);
   }
   /* USER CODE END Food_Motor_Control */
 }
