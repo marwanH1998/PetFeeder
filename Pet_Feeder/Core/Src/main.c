@@ -21,7 +21,7 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "stdio.h"
-
+#include "hx711.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -119,7 +119,19 @@ void Measure_Weight_Water(void *argument);
 void Start_Water_Control(void *argument);
 void Food_Motor_Control(void *argument);
 void StartTemp(void *argument);
-
+hx711_t loadcellFood;
+int Foodweight;
+hx711_t loadcellWater;
+int waterWeight;
+ uint8_t h1,h2,m1,m2,s1,s2;
+uint32_t alarm1 = 1141;
+int h1alarm =0;
+int h2alarm=11;
+int m1alarm = 4;
+int m2alarm=0;
+int s1alarm =5;
+int s2alarm =1;
+int OpenFoodDoor = 0;
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -585,6 +597,7 @@ static void MX_GPIO_Init(void)
   * @retval None
   */
 /* USER CODE END Header_StartDefaultTask */
+
 void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
@@ -637,13 +650,14 @@ void StartDefaultTask(void *argument)
  StatR[0] = 0x0f; //register address
  StatR[1] = 0x80; //register address
  HAL_I2C_Master_Transmit(&hi2c3, 0xD0, StatR, 2, 40);
-
- 
- 
- 
+/*
+ int h1alarm = alarm1 / 1000;
+ int h2alarm = (alarm1 % 1000)/100;
+ int m1alarm = (alarm1 % 100)/10;
+ int m2alarm = (alarm1 % 10);
+*/
  
  //Receive via I2C and forward to UART
- uint8_t h1,h2,m1,m2,s1,s2;
  char uartBuf [100] = {0};
 		for(;;)
  {
@@ -665,6 +679,8 @@ void StartDefaultTask(void *argument)
  // transmit time to UART
  sprintf(uartBuf, "%d%d:%d%d:%d%d\r\n",h1,h2,m1,m2,s1,s2);
  HAL_UART_Transmit(&huart2, (uint8_t *)uartBuf, sizeof(uartBuf), 40);
+	 if((h1 == h1alarm) && (h2==h2alarm) &&(m1 == m1alarm) && (m2==m2alarm) && (s1 ==s1alarm) && (s2==s2alarm)) 
+		 OpenFoodDoor = 1;
  osDelay(1000);
  }
   /* USER CODE END 5 */
@@ -693,11 +709,13 @@ void StartTask02(void *argument)
 if (foodOrWater ==0)
 {	
     osDelay(1000);
+		taskENTER_CRITICAL();
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
     __HAL_TIM_SetCounter(&htim1,0);
 	  while(__HAL_TIM_GetCounter (&htim1)<10);	
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
 		HAL_TIM_IC_Start_IT(&htim1,TIM_CHANNEL_1);
+		taskEXIT_CRITICAL();
     osDelay(1000);
 	
 	foodOrWater =1;
@@ -705,25 +723,17 @@ if (foodOrWater ==0)
 else
 {	
     osDelay(1000);
+				taskENTER_CRITICAL();
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
     __HAL_TIM_SetCounter(&htim1,0);
 	  while(__HAL_TIM_GetCounter (&htim1)<10);	
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
 		HAL_TIM_IC_Start_IT(&htim1,TIM_CHANNEL_3);
+			taskEXIT_CRITICAL();
     osDelay(1000);
 
 	foodOrWater =0;
 }
-
-		if(flagforfood==1)
-			flagforfood=0;
-		else
-			flagforfood=1;
-		
-		
-		uint8_t out;
-		sprintf((char *) &out,"%d",flagforfood);
-		HAL_UART_Transmit(&huart1, &out,sizeof(out),HAL_MAX_DELAY);
 
     /* USER CODE BEGIN 3 */	 
   }
@@ -737,13 +747,35 @@ else
 * @retval None
 */
 /* USER CODE END Header_Measure_Weight_Food */
+
 void Measure_Weight_Food(void *argument)
 {
   /* USER CODE BEGIN Measure_Weight_Food */
   /* Infinite loop */
-  for(;;)
+	  taskENTER_CRITICAL();
+	  hx711_init(&loadcellFood, GPIOA, GPIO_PIN_4, GPIOA, GPIO_PIN_5);
+		hx711_coef_set(&loadcellFood, 146.5); // read afer calibration
+		hx711_tare(&loadcellFood, 10);
+		taskEXIT_CRITICAL();
+
+
+	char out[4];
+	char food[13]="Food Weight: ";
+	char newline[2] = "\r\n";
+  while(1)
   {
-    osDelay(1);
+		osDelay(5000);
+		taskENTER_CRITICAL();
+    osDelay(500);
+		Foodweight = hx711_weight(&loadcellFood, 10);
+		Foodweight=Foodweight;
+		sprintf(out,"%d",Foodweight);
+		HAL_UART_Transmit(&huart2,(uint8_t *)food,sizeof(food),HAL_MAX_DELAY);
+		HAL_UART_Transmit(&huart2,(uint8_t *)out,sizeof(out),HAL_MAX_DELAY);
+		HAL_UART_Transmit(&huart2,(uint8_t *)newline,sizeof(newline),HAL_MAX_DELAY);
+		taskEXIT_CRITICAL();
+
+
   }
   /* USER CODE END Measure_Weight_Food */
 }
@@ -759,10 +791,35 @@ void Measure_Weight_Water(void *argument)
 {
   /* USER CODE BEGIN Measure_Weight_Water */
   /* Infinite loop */
-  for(;;)
+	//40567 is the max weight
+  	taskENTER_CRITICAL();
+    hx711_init(&loadcellWater, GPIOB, GPIO_PIN_0, GPIOB, GPIO_PIN_1);
+    hx711_coef_set(&loadcellWater, 146.5); // read afer calibration
+		hx711_tare(&loadcellWater, 10);
+		taskEXIT_CRITICAL();
+
+	
+	char waterout[4];
+	char newline[2] = "\r\n";
+	char water[14]="Water Weight: ";
+
+  while(1)
   {
-    osDelay(1);
+		osDelay(5000);
+		taskENTER_CRITICAL();
+    osDelay(500);
+		waterWeight = hx711_weight(&loadcellWater, 10);
+		waterWeight=waterWeight;
+		sprintf(waterout,"%d",waterWeight);
+		
+		HAL_UART_Transmit(&huart2,(uint8_t *)water,sizeof(water),HAL_MAX_DELAY);
+		HAL_UART_Transmit(&huart2,(uint8_t *)waterout,sizeof(waterout),HAL_MAX_DELAY);
+		HAL_UART_Transmit(&huart2,(uint8_t *)newline,sizeof(newline),HAL_MAX_DELAY);
+		taskEXIT_CRITICAL();
+
+
   }
+  
   /* USER CODE END Measure_Weight_Water */
 }
 
@@ -779,10 +836,12 @@ void Start_Water_Control(void *argument)
   /* Infinite loop */
   for(;;)
   {
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_SET);
-		osDelay(1000);
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_RESET);
-		osDelay(1000);
+		if(waterWeight < 350)
+			
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_SET);
+		else
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_RESET);
+		//
   }
   /* USER CODE END Start_Water_Control */
 }
@@ -799,25 +858,36 @@ void Food_Motor_Control(void *argument)
   /* USER CODE BEGIN Food_Motor_Control */
   /* Infinite loop */
 		int pre = 0;
-		HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
-	__HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_1,5);
+	//	HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
+	//__HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_1,5);
   for(;;)
   {
 
 
 
+			if (OpenFoodDoor ==1)
+			{
+		HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
+	__HAL_TIM_SET_COMPARE(&htim2,TIM_CHANNEL_1,5);
 			pre = 5;
 
 			__HAL_TIM_SET_PRESCALER(&htim2,pre);
-			osDelay(1000);
+			osDelay(2000);
+				
 			pre = 800;
 
 			__HAL_TIM_SET_PRESCALER(&htim2,pre);
-			osDelay(1000);
+			osDelay(2000);
+				
+			OpenFoodDoor =0;
+			//HAL_TIM_PWM_Stop(&htim2,TIM_CHANNEL_1);
+			}
+			else
+			{
+				HAL_TIM_PWM_Stop(&htim2,TIM_CHANNEL_1);
+			}
 		
-	
-		
-			osDelay(500);
+			//osDelay(500);
 
   }
   /* USER CODE END Food_Motor_Control */

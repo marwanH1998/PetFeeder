@@ -418,6 +418,11 @@
               <FileType>1</FileType>
               <FilePath>../Core/Src/stm32l4xx_hal_timebase_tim.c</FilePath>
             </File>
+            <File>
+              <FileName>hx711.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\hx711.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

@@ -5,6 +5,7 @@
 "pet_feeder\stm32l4xx_it.o"
 "pet_feeder\stm32l4xx_hal_msp.o"
 "pet_feeder\stm32l4xx_hal_timebase_tim.o"
+"pet_feeder\hx711.o"
 "pet_feeder\stm32l4xx_hal.o"
 "pet_feeder\stm32l4xx_hal_i2c.o"
 "pet_feeder\stm32l4xx_hal_i2c_ex.o"

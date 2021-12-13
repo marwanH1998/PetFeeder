@@ -45,3 +45,4 @@ pet_feeder\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
 pet_feeder\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
 pet_feeder\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h
 pet_feeder\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+pet_feeder\main.o: ../Core/Inc/hx711.h
